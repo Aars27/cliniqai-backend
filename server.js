@@ -30,6 +30,61 @@ app.get('/', (req, res) => {
     });
 });
 
+
+// India pe outbound call karo
+app.post('/call-patient', async (req, res) => {
+  try {
+    const { patientPhone } = req.body;
+    
+    const response = await fetch('https://api.vapi.ai/call/phone', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        assistantId: "cfc2b464-10f1-4102-93c5-387657851949",
+        phoneNumberId: "690154c9-702c-4412-91c6-7225b4acda86",
+        customer: {
+          number: patientPhone,
+          name: "Patient"
+        }
+      })
+    });
+    
+    const data = await response.json();
+    console.log('Call started:', data);
+    res.json({ success: true, call: data });
+    
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.post('/make-call', async (req, res) => {
+  const { patientPhone } = req.body;
+  
+  const response = await fetch('https://api.vapi.ai/call', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      assistantId: "cfc2b464-...", 
+      phoneNumberId: "abebdd20-...", 
+      customer: {
+        number: patientPhone 
+      }
+    })
+  });
+  
+  res.json(await response.json());
+});
+
+
+
 // ─────────────────────────────────────────────────────────────────
 // ROUTE 2: POST /vapi-webhook - VAPI call end report handle karne ke liye
 // ─────────────────────────────────────────────────────────────────
